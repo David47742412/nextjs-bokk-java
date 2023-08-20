@@ -2,7 +2,6 @@ import { environment } from '@/configuration/configuration';
 import { NextRequest, NextResponse } from 'next/server';
 import { IResponseApi } from '@/interface/response-api';
 import { FindBook } from '@/models/find-book';
-import { NextApiRequest } from 'next';
 
 type createBook = {
   title: string;

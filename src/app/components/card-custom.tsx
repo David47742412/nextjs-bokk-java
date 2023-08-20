@@ -36,18 +36,21 @@ export default function CardCustom({
       </CardBody>
       <Divider />
       <CardFooter className={'justify-center'}>
-        <MNewBook
-          key={1}
-          Categories={categories}
-          outAction={outAction}
-          findUpd={book}
-        />
-        <Button
-          className={'ml-2 bg-danger'}
-          onClick={() => onDelete(book.bookid!)}
-        >
-          Eliminar
-        </Button>
+        <div>
+          <p className={'mb-2 text-center'}>Categoría: {book.categoryname}</p>
+          <MNewBook
+            key={1}
+            Categories={categories}
+            outAction={outAction}
+            findUpd={book}
+          />
+          <Button
+            className={'ml-2 bg-danger'}
+            onClick={() => onDelete(book.bookid!)}
+          >
+            Eliminar
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );
