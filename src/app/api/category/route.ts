@@ -9,17 +9,18 @@ export async function GET() {
     body: [],
   };
   try {
-    const req = await fetch(`${environment.host}/category`);
+    const req = await fetch(`${environment.host}/category`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     const data = (await req.json()) as IResponseApi<{
       categoryId: string;
       description: string;
     }>;
-    response.message = data.message;
-    response.statusCode = data.statusCode;
-    response.body = data.body;
-    return new NextResponse(JSON.stringify(response), {
-      status: response.statusCode,
-    });
+    console.log(data);
+    return NextResponse.json(data);
   } catch (ex: any) {
     response.statusCode = 500;
     response.message = 'Ha ocurrido un error al momento de listar los datos.';
