@@ -8,14 +8,21 @@ import {
   Image,
 } from '@nextui-org/react';
 import { FindBook } from '@/models/find-book';
+import MNewBook from '@/app/components/modal-new-book';
 
 type functions = {
   book: FindBook;
-  onUpdate: (id: string) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  categories: { categoryId: string; description: string }[];
+  outAction: (books: FindBook[]) => void;
 };
 
-export default function CardCustom({ book, onUpdate, onDelete }: functions) {
+export default function CardCustom({
+  book,
+  categories,
+  onDelete,
+  outAction,
+}: functions) {
   return (
     <Card className='max-w-[400px]'>
       <CardHeader className='flex gap-3'>
@@ -29,13 +36,16 @@ export default function CardCustom({ book, onUpdate, onDelete }: functions) {
       </CardBody>
       <Divider />
       <CardFooter className={'justify-center'}>
+        <MNewBook
+          key={1}
+          Categories={categories}
+          outAction={outAction}
+          findUpd={book}
+        />
         <Button
-          className={'bg-blue-500 mr-2'}
-          onClick={() => onUpdate(book.bookid!)}
+          className={'ml-2 bg-danger'}
+          onClick={() => onDelete(book.bookid!)}
         >
-          Editar
-        </Button>
-        <Button className={'bg-danger'} onClick={() => onDelete(book.bookid!)}>
           Eliminar
         </Button>
       </CardFooter>

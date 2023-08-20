@@ -46,10 +46,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       body: JSON.stringify(body),
     });
-    return new NextResponse(JSON.stringify(await req.json()), {
-      status: 200,
-      statusText: 'OK',
-    });
+    return NextResponse.json(await req.json());
   } catch (ex: any) {
     console.log(ex.message);
     return new NextResponse(
@@ -62,6 +59,31 @@ export async function POST(req: NextRequest) {
         status: 500,
         statusText: 'Internal Server Error',
       }
+    );
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  const id = req.nextUrl.searchParams.get('id')!;
+  const body = (await req.json()) as createBook;
+  try {
+    const host = environment.host!;
+    const req = await fetch(`${host}/book/${id}`, {
+      headers: {
+        'content-type': 'application/json',
+      },
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+    return NextResponse.json(await req.json());
+  } catch (ex: any) {
+    console.log(ex.message);
+    return new NextResponse(
+      JSON.stringify({
+        statusCode: 500,
+        message: 'Ha ocurrido un Error al momento de actualizar un libro',
+        body: [],
+      })
     );
   }
 }

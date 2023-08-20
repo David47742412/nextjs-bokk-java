@@ -1,17 +1,24 @@
 import { Button, useDisclosure } from '@nextui-org/react';
 import { Modal, ModalBody, ModalContent, ModalHeader } from '@nextui-org/modal';
 import { Input, Textarea } from '@nextui-org/input';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { FindBook } from '@/models/find-book';
 import { IResponseApi } from '@/interface/response-api';
 
 type MNewBookProps = {
   Categories: { categoryId: string; description: string }[];
   outAction: (books: FindBook[]) => void;
+  findUpd?: FindBook;
 };
 
-export default function MNewBook({ Categories, outAction }: MNewBookProps) {
+export default function MNewBook({
+  Categories,
+  outAction,
+  findUpd,
+}: MNewBookProps) {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const [titleBtn, setTitleBtn] = useState('Nuevo libro');
+  const [actionModal, setActionModal] = useState('Crear');
 
   const [book, setBook] = useState({
     title: '',
@@ -25,6 +32,18 @@ export default function MNewBook({ Categories, outAction }: MNewBookProps) {
       [ev.target.name]: ev.target.value,
     });
   };
+
+  useEffect(() => {
+    if (findUpd) {
+      setActionModal('Actualizar');
+      setTitleBtn('Editar');
+      setBook({
+        title: findUpd.title ?? 'fue nulo',
+        description: findUpd.description!,
+        categoryId: findUpd.categoryid!,
+      });
+    }
+  }, []);
 
   const onSelectOption = (ev: ChangeEvent<HTMLSelectElement>) => {
     setBook({
@@ -41,14 +60,13 @@ export default function MNewBook({ Categories, outAction }: MNewBookProps) {
         return;
       }
 
-      const req = await fetch('api/book', {
-        method: 'POST',
+      const req = await fetch(`api/book?id=${findUpd?.bookid}`, {
+        method: !findUpd ? 'POST' : 'PUT',
         body: JSON.stringify(book),
         headers: {
           'content-type': 'application/json',
         },
       });
-
       const reqJson = (await req.json()) as IResponseApi<FindBook>;
       if (reqJson.message) {
         alert(reqJson.message);
@@ -63,15 +81,18 @@ export default function MNewBook({ Categories, outAction }: MNewBookProps) {
 
   return (
     <>
-      <Button className={'bg-green-400'} onPress={onOpen}>
-        Nuevo Libro
+      <Button
+        className={`${!findUpd ? 'bg-green-400' : 'bg-blue-500'}`}
+        onPress={onOpen}
+      >
+        {titleBtn}
       </Button>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false}>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
         <ModalContent>
           {(onClose) => (
             <>
               <ModalHeader className='flex flex-col gap-1 text-center'>
-                Nuevo Libro
+                {actionModal} Libro
               </ModalHeader>
               <ModalBody className={'mb-2'}>
                 <form onSubmit={onSubmit}>
@@ -84,6 +105,7 @@ export default function MNewBook({ Categories, outAction }: MNewBookProps) {
                       name={'title'}
                       placeholder={'Ingrese el titulo del libro'}
                       onChange={onChange}
+                      value={book.title}
                     />
                     <Textarea
                       label={'Descripción'}
@@ -92,12 +114,14 @@ export default function MNewBook({ Categories, outAction }: MNewBookProps) {
                       className={'mb-3'}
                       placeholder={'Descripción del libro'}
                       onChange={onChange}
+                      value={book.description}
                     ></Textarea>
                     <select
                       className={
                         'mb-3 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
                       }
                       onChange={onSelectOption}
+                      value={book.categoryId ?? 'default'}
                     >
                       <option value='default'>Seleccione una categoría</option>
                       {Categories.map((category, index) => (
@@ -112,7 +136,7 @@ export default function MNewBook({ Categories, outAction }: MNewBookProps) {
                     className={'w-full'}
                     color={'primary'}
                   >
-                    Guardar
+                    {actionModal}
                   </Button>
                 </form>
                 <Button

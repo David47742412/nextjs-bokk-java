@@ -22,7 +22,6 @@ export default function Home() {
 
   const onUpdate = async (id: string) => {
     try {
-      console.log(id);
     } catch (ex: any) {
       console.log(ex.message);
     }
@@ -74,8 +73,9 @@ export default function Home() {
             <CardCustom
               key={index}
               onDelete={onDelete}
-              onUpdate={onUpdate}
               book={book}
+              outAction={onActionResult}
+              categories={categories}
             />
           ))}
         </div>
