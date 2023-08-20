@@ -1,8 +1,14 @@
-import { NextApiRequest } from 'next';
 import { environment } from '@/configuration/configuration';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { IResponseApi } from '@/interface/response-api';
 import { FindBook } from '@/models/find-book';
+import { NextApiRequest } from 'next';
+
+type createBook = {
+  title: string;
+  description: string;
+  categoryId: string;
+};
 
 export async function GET() {
   const response: IResponseApi<FindBook> = {
@@ -26,5 +32,56 @@ export async function GET() {
     return new NextResponse(JSON.stringify(response), {
       status: response.statusCode,
     });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  const body = (await req.json()) as createBook;
+  try {
+    const host = environment.host!;
+    const req = await fetch(`${host}/book`, {
+      headers: {
+        'content-type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+    return new NextResponse(JSON.stringify(await req.json()), {
+      status: 200,
+      statusText: 'OK',
+    });
+  } catch (ex: any) {
+    console.log(ex.message);
+    return new NextResponse(
+      JSON.stringify({
+        statusCode: 500,
+        message: 'Ha ocurrido un Error al momento de crear un libro',
+        body: [],
+      }),
+      {
+        status: 500,
+        statusText: 'Internal Server Error',
+      }
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const id = req.nextUrl.searchParams.get('id')!;
+  try {
+    const host = environment.host!;
+    const req = await fetch(`${host}/book/${id}`, {
+      method: 'DELETE',
+    });
+    return NextResponse.json(await req.json());
+  } catch (ex: any) {
+    console.log(ex.message);
+    return new NextResponse(
+      JSON.stringify({
+        statusCode: 500,
+        message: 'Ha ocurrido un Error al momento de eliminar un libro',
+        body: [],
+      })
+    );
   }
 }

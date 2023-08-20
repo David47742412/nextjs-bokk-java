@@ -1,5 +1,5 @@
 'use client';
-import { Button, NextUIProvider } from '@nextui-org/react';
+import { NextUIProvider } from '@nextui-org/react';
 import { useEffect, useState } from 'react';
 import { FindBook } from '@/models/find-book';
 import CardCustom from '@/app/components/card-custom';
@@ -12,6 +12,14 @@ export default function Home() {
     { categoryId: string; description: string }[]
   >([]);
 
+  useEffect(() => {
+    fetchBaseData();
+  }, []);
+
+  const onActionResult = (books: FindBook[]) => {
+    setBooks(books);
+  };
+
   const onUpdate = async (id: string) => {
     try {
       console.log(id);
@@ -22,7 +30,14 @@ export default function Home() {
 
   const onDelete = async (id: string) => {
     try {
-      console.log(id);
+      const req = await fetch(`api/book?id=${id}`, {
+        method: 'DELETE',
+      });
+      const reqJson = (await req.json()) as IResponseApi<FindBook>;
+      if (reqJson.message) {
+        alert(reqJson.message);
+      }
+      setBooks(reqJson.body);
     } catch (ex: any) {
       console.log(ex.message);
     }
@@ -44,26 +59,24 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    fetchBaseData();
-  }, []);
-
   return (
     <NextUIProvider>
       <main className='container flex min-h-screen flex-col p-10 '>
         <div className={'mb-4'}>
-          <MNewBook key={1} Categories={categories} />
+          <MNewBook
+            key={1}
+            Categories={categories}
+            outAction={onActionResult}
+          />
         </div>
         <div className='grid auto-rows-max grid-flow-col gap-4'>
           {books.map((book, index) => (
-            <>
-              <CardCustom
-                key={index}
-                onDelete={onDelete}
-                onUpdate={onUpdate}
-                book={book}
-              />
-            </>
+            <CardCustom
+              key={index}
+              onDelete={onDelete}
+              onUpdate={onUpdate}
+              book={book}
+            />
           ))}
         </div>
       </main>
